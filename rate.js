@@ -74,32 +74,32 @@ async function getRate() {
 async function getUSInterest() {
   try {
     
+    console.log("米金利取得開始");
+    
     const res = await fetch(
-      "https://api.allorigins.win/raw?url=https://fred.stlouisfed.org/graph/fredgraph.csv?id=DGS10"
+      "https://api.stlouisfed.org/fred/series/observations?series_id=DGS10&api_key=8655f5ac09be9421983b7cac553ee159&file_type=json"
     );
     
-    const text = await res.text();
+    const data = await res.json();
     
-    const rows = text.split("\n");
+    console.log("FREDデータ", data);
     
     let latest;
     
-    for (let i = rows.length - 1; i >= 0; i--) {
-      const row = rows[i].split(",");
-      if (row[1] && row[1] !== ".") {
-        latest = row[1];
+    for (let i = data.observations.length - 1; i >= 0; i--) {
+      if (data.observations[i].value !== ".") {
+        latest = data.observations[i].value;
         break;
       }
     }
     
     document.getElementById("usdInterest").textContent =
-      parseFloat(latest).toFixed(2) + " %";
+      latest + " %";
     
   } catch (e) {
     console.log("米金利取得失敗", e);
   }
 }
-
 
 setTimeout(getRate, 500);
 setTimeout(getUSInterest, 1200);
