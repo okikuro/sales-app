@@ -294,5 +294,12 @@ function changeKeep(n){ keepIndex=(keepIndex+n+4)%4; render(); }
 function changeJob(n){ jobIndex=(jobIndex+n+2)%2; render(); }
 render();
 </script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js');
+}
+</script>
+  
 </body>
 </html>
