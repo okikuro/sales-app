@@ -1,6 +1,6 @@
 {
-  "name": "成績管理",
-  "short_name": "成績",
+  "name": "サメのみらいサポート",
+  "short_name": "サメのサポート",
   "start_url": "/sales-app/",
   "scope": "/sales-app/",
   "display": "standalone",
