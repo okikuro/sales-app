@@ -1,7 +1,8 @@
 {
   "name": "成績管理",
   "short_name": "成績",
-  "start_url": "./",
+  "start_url": "/sales-app/",
+  "scope": "/sales-app/"
   "display": "standalone",
   "background_color": "#f5f6fa",
   "theme_color": "#007aff",
