@@ -37,7 +37,8 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git pull --rebase
+          git fetch origin
+          git reset --hard origin/main
           git add rate.json
           git commit -m "auto update rate" || echo "no changes"
           git push
