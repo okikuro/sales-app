@@ -1,4 +1,4 @@
-const CACHE_NAME = "sales-app-v2"; // ← 変えた！
+const CACHE_NAME = "sales-app-v3"; // ← 変えた！
 
 const urlsToCache = [
   "./",
