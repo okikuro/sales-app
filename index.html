@@ -1,60 +1,50 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+  <link rel="stylesheet" href="rate.css">
+  <link rel="manifest" href="manifest.json">
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>成績管理 Pro</title>
-<link rel="manifest" href="manifest.json">
 <style>
-/* --- 共通スタイル --- */
-body { margin: 0; font-family: sans-serif; background: #f5f6fa; padding-bottom: 100px; color: #333; }
+body { margin: 0; font-family: sans-serif; background: #f5f6fa; padding-bottom: 100px; }
 .card { background: white; margin: 10px; padding: 14px; border-radius: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;}
 .header { background:#e3f0ff; padding:10px; font-weight:bold; line-height: 1.6; }
 button { padding: 6px 10px; font-size: 12px; border-radius: 8px; border: none; background: #e0e7ff; cursor: pointer; }
-.primary { background:#007aff; color:white; }
 input, select { padding:8px; border-radius:10px; border:1px solid #ccc; font-size: 13px; }
 
-/* ナビ・タブ */
 .year-tabs { display: flex; gap: 8px; overflow-x: auto; padding: 10px; background: #fff; border-bottom: 1px solid #ddd; }
 .year-tab { padding: 6px 15px; background: #eee; border-radius: 20px; font-size: 12px; white-space: nowrap; cursor: pointer; }
 .year-tab.active { background: #007aff; color: white; font-weight: bold; }
-.nav-bar { position:fixed; bottom:0; width:100%; height:60px; background:white; display:flex; border-top:1px solid #ddd; z-index: 100; }
-.nav-item { flex:1; text-align:center; padding-top:10px; font-size: 12px; cursor: pointer; color: #666; }
 
-/* 🌟 利率タブ：絶対に横に並べる設定 🌟 */
-.rate-grid { 
-  display: grid; 
-  grid-template-columns: 1fr 1fr; 
-  gap: 10px; 
-  margin-top: 10px; 
-}
-.rate-item { 
-  background: #f8f9fd; 
-  padding: 10px; 
-  border-radius: 10px; 
-  border: 1px solid #eee;
-  font-size: 12px;
-}
-.diff-text { font-size: 10px; margin-top: 4px; line-height: 1.2; }
+.input-row { display: flex; gap: 4px; align-items: center; margin-bottom: 12px; }
+.input-row input, .input-row select { flex: 1; min-width: 0; }
 
-/* コンパクト入力 (提携・見込み) */
-.compact-row { display: flex; gap: 4px; align-items: center; margin-bottom: 8px; }
-.compact-row input, .compact-row select { flex: 1; min-width: 0; }
-.chk-btn { background: #eee; padding: 8px; border-radius: 10px; font-size: 11px; white-space: nowrap; display: flex; align-items: center; gap: 2px; }
+.check-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
+.check-item { font-size: 11px; display: flex; align-items: center; gap: 2px; white-space: nowrap; }
+.check-item input { width: 15px; height: 15px; }
 
-/* モーダル */
+.primary { background:#007aff; color:white; }
 .fab { position: fixed; bottom: 80px; right: 20px; width: 60px; height: 60px; background: #007aff; color: white; font-size: 30px; border-radius: 50%; text-align: center; line-height: 60px; z-index: 100; }
 .modal { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:none; z-index: 200; }
 .modal-content { background:white; margin:40px 15px; padding:20px; border-radius:16px; max-height: 90vh; overflow-y: auto; }
+.nav-bar { position:fixed; bottom:0; width:100%; height:60px; background:white; display:flex; border-top:1px solid #ddd; z-index: 100; }
+.nav-item { flex:1; text-align:center; padding-top:10px; font-size: 12px; cursor: pointer; color: #666; }
+
+/* おたすけ計算機のスタイル */
 .helper-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); display:none; z-index: 300; align-items: center; justify-content: center; }
 .helper-box { background: white; width: 90%; padding: 20px; border-radius: 16px; position: relative; }
-.check-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
-.check-item { font-size: 11px; display: flex; align-items: center; gap: 2px; }
+.helper-input-row { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; font-size: 12px; margin-bottom: 15px; }
+.helper-input-row input[type="number"] { width: 50px; }
+.helper-result { background: #f0f7ff; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; font-weight: bold; line-height: 1.6; }
+.fortune-box { border-top: 1px dashed #ccc; padding-top: 10px; font-size: 13px; color: #555; }
+.zodiac-name { color: #007aff; font-size: 16px; font-weight: bold; margin-bottom: 5px; display: block;}
 </style>
 </head>
 <body>
 
 <div id="year-tab-container" class="year-tabs"></div>
+
 <div id="tab-sales"></div>
 <div id="tab-partner" style="display:none;"></div>
 <div id="tab-rate" style="display:none;"></div>
@@ -68,20 +58,26 @@ input, select { padding:8px; border-radius:10px; border:1px solid #ccc; font-siz
       <h3 style="margin:0;">生年月日 & 占い</h3>
       <button onclick="closeHelper()" style="background:#ff3b30; color:white;">閉じる</button>
     </div>
-    <div style="font-size:12px;">
+    
+    <div class="helper-input-row">
       <label><input type="radio" name="era" value="西暦" checked onchange="calcHelper()">西暦</label>
       <label><input type="radio" name="era" value="令和" onchange="calcHelper()">令和</label>
       <label><input type="radio" name="era" value="平成" onchange="calcHelper()">平成</label>
-      <label><input type="radio" name="era" value="昭和" onchange="calcHelper()">昭和</label><br><br>
-      <input type="number" id="h-year" placeholder="年" style="width:55px;" oninput="calcHelper()">年
-      <input type="number" id="h-month" placeholder="月" style="width:45px;" oninput="calcHelper()">月
-      <input type="number" id="h-day" placeholder="日" style="width:45px;" oninput="calcHelper()">日
+      <label><input type="radio" name="era" value="昭和" onchange="calcHelper()">昭和</label>
+      <input type="number" id="h-year" placeholder="年" oninput="calcHelper()">年
+      <input type="number" id="h-month" placeholder="月" oninput="calcHelper()">月
+      <input type="number" id="h-day" placeholder="日" oninput="calcHelper()">日
     </div>
-    <div id="helper-result" style="background:#f0f7ff; padding:12px; border-radius:10px; margin-top:15px; font-weight:bold; font-size:14px; line-height:1.5;">入力を待っています...</div>
-    <div id="fortune-box" style="display:none; border-top:1px dashed #ccc; padding-top:10px; margin-top:10px; font-size:13px;">
-      <b id="zodiac-display" style="color:#007aff; font-size:16px;"></b><br>
-      運勢：<span id="fortune-text"></span><br>
-      <small id="lucky-food" style="color:#888;"></small>
+
+    <div class="helper-result" id="helper-result">
+      生年月日を入力してください
+    </div>
+
+    <div class="fortune-box" id="fortune-box" style="display:none;">
+      <span class="zodiac-name" id="zodiac-display"></span>
+      今日の運勢★<br>
+      <span id="fortune-text">...</span><br>
+      <span id="lucky-food" style="font-size: 11px; color: #888;"></span>
     </div>
   </div>
 </div>
@@ -89,13 +85,11 @@ input, select { padding:8px; border-radius:10px; border:1px solid #ccc; font-siz
 <div class="modal" id="modal">
   <div class="modal-content">
     <h3>成績入力</h3>
-    <div class="compact-row">
+    <div class="input-row">
       <select id="cases"><option value="0.1">0.1</option><option value="0.2">0.2</option><option value="0.5">0.5</option><option value="1" selected>1</option><option value="1.5">1.5</option><option value="2">2</option></select>
-      <input type="number" id="amount" placeholder="金額(万)" style="flex:2;">
-    </div>
-    <div class="compact-row">
-      <button onclick="document.getElementById('date').showPicker()" id="dateBtn" style="flex:1;">日付</button>
-      <button onclick="document.getElementById('month').showPicker()" id="monthBtn" style="flex:1;">月分</button>
+      <input type="number" id="amount" placeholder="金額(万)">
+      <button onclick="pickDate()" id="dateBtn">日付</button>
+      <button onclick="pickMonth()" id="monthBtn">月分</button>
     </div>
     <div class="check-grid">
       <label class="check-item"><input type="checkbox" id="chk_shared"> 共同</label>
@@ -108,9 +102,9 @@ input, select { padding:8px; border-radius:10px; border:1px solid #ccc; font-siz
       <label class="check-item"><input type="checkbox" id="chk_aflac"> アフラック</label>
       <label class="check-item"><input type="checkbox" id="chk_auto_rev"> 車の更改</label>
     </div>
-    <input type="date" id="date" style="display:none;" onchange="document.getElementById('dateBtn').innerText=this.value.slice(5)">
-    <input type="month" id="month" style="display:none;" onchange="document.getElementById('monthBtn').innerText=this.value.split('-')[1]+'月'">
-    <button class="primary" style="width:100%; padding:15px; margin-top:10px;" onclick="saveSales()">保存</button>
+    <input type="date" id="date" style="display:none;">
+    <input type="month" id="month" style="display:none;">
+    <button class="primary" style="width:100%; padding:15px;" onclick="saveSales()">保存</button>
     <button onclick="closeForm()" style="width:100%; background:none; margin-top:10px;">閉じる</button>
   </div>
 </div>
@@ -123,192 +117,192 @@ input, select { padding:8px; border-radius:10px; border:1px solid #ccc; font-siz
 </div>
 
 <script>
-// --- 🌟 基本変数 ---
-const FRED_KEY = "8655f5ac09be9421983b7cac553ee159";
 let currentYear = new Date().getFullYear().toString();
-let keepIndex = 0; let jobIndex = 0;
+let keepIndex = 0; let jobIndex = 0; let currentTotalCat = "職選";
 
-// --- 🌟 1. タブ切り替え ---
+// 🌟 おたすけ計算機 & 占いの制御
+function openHelper() {
+  document.getElementById("helper-overlay").style.display = "flex";
+}
+function closeHelper() { document.getElementById("helper-overlay").style.display = "none"; }
+
+function calcHelper() {
+  const era = document.querySelector('input[name="era"]:checked').value;
+  let y = parseInt(document.getElementById("h-year").value);
+  const m = parseInt(document.getElementById("h-month").value);
+  const d = parseInt(document.getElementById("h-day").value);
+  
+  if(!y || !m || !d) return;
+
+  let adYear = y;
+  if(era === "令和") adYear = y + 2018;
+  if(era === "平成") adYear = y + 1988;
+  if(era === "昭和") adYear = y + 1925;
+
+  let waYear = "";
+  if(adYear >= 2019) waYear = `令和${adYear - 2018 === 0 ? '元' : adYear - 2018}年`;
+  else if(adYear >= 1989) waYear = `平成${adYear - 1988}年`;
+  else if(adYear >= 1926) waYear = `昭和${adYear - 1925}年`;
+
+  // 年齢計算 (今日: 2026年4月4日基準)
+  const today = new Date(2026, 3, 4);
+  let age = 2026 - adYear;
+  if (today.getMonth() + 1 < m || (today.getMonth() + 1 === m && today.getDate() < d)) { age--; }
+
+  document.getElementById("helper-result").innerHTML = `西暦：${adYear}年 / ${waYear} / 現在${age}才`;
+  
+  // 🌟 占い実行
+  showZodiacFortune(m, d);
+}
+
+function showZodiacFortune(m, d) {
+  const zodiacs = [
+    { name: "山羊座", start: [12, 22], end: [1, 19] },
+    { name: "水瓶座", start: [1, 20], end: [2, 18] },
+    { name: "魚座", start: [2, 19], end: [3, 20] },
+    { name: "牡羊座", start: [3, 21], end: [4, 19] },
+    { name: "牡牛座", start: [4, 20], end: [5, 20] },
+    { name: "双子座", start: [5, 21], end: [6, 21] },
+    { name: "蟹座", start: [6, 22], end: [7, 22] },
+    { name: "獅子座", start: [7, 23], end: [8, 22] },
+    { name: "乙女座", start: [8, 23], end: [9, 22] },
+    { name: "天秤座", start: [9, 23], end: [10, 23] },
+    { name: "蠍座", start: [10, 24], end: [11, 22] },
+    { name: "射手座", start: [11, 23], end: [12, 21] }
+  ];
+
+  let myZodiac = zodiacs.find(z => {
+    const s = z.start; const e = z.end;
+    return (m === s[0] && d >= s[1]) || (m === e[0] && d <= e[1]);
+  }) || zodiacs[0];
+
+  const fortunes = [
+    "周囲への気配りが運気を呼び込みます。笑顔を大切に！",
+    "直感が冴える日。新しいアイデアはメモしておきましょう。",
+    "無理は禁物。今日は自分を甘やかす時間を作って。",
+    "チャンスが巡ってきそう！迷わず一歩踏み出して。",
+    "コツコツ積み上げたことが評価される嬉しい日になりそう。",
+    "対人運がアップ。意外な人との会話にヒントがあります。",
+    "集中力が高まっています。一気に仕事を片付けるチャンス！",
+    "冒険心が幸運のカギ。いつもと違う道を通ってみて。",
+    "整理整頓がツキを呼びます。デスク周りをスッキリさせて。",
+    "優柔不断になりがち。信頼できる人に相談してみるのが吉。",
+    "粘り強さが実を結びます。最後まで諦めないで。",
+    "自由な発想が周りを惹きつけます。自信を持って発言を！"
+  ];
+
+  const foods = ["うどん", "カレー", "パスタ", "お寿司", "焼き肉", "サラダ", "チョコ", "パンケーキ", "おにぎり", "ラーメン"];
+  
+  // 🌟 誕生日からシード値を作って、その人だけの今日の運勢を固定（今日一日は同じ結果が出るように）
+  const seed = m + d + new Date().getDate();
+  const fortuneIndex = seed % fortunes.length;
+  const foodIndex = seed % foods.length;
+
+  document.getElementById("fortune-box").style.display = "block";
+  document.getElementById("zodiac-display").innerText = "あなたは「" + myZodiac.name + "」";
+  document.getElementById("fortune-text").innerText = fortunes[fortuneIndex];
+  document.getElementById("lucky-food").innerText = "今日のラッキー食べ物：" + foods[foodIndex];
+}
+
+// 既存の関数 (変更なし)
 function switchTab(tab) {
   document.querySelectorAll('[id^="tab-"]').forEach(el => el.style.display = "none");
-  const target = document.getElementById("tab-" + tab);
-  target.style.display = "block";
+  document.getElementById("tab-" + tab).style.display = "block";
   document.getElementById("year-tab-container").style.display = (tab === "sales") ? "flex" : "none";
-  
-  if (tab === 'rate') { 
-    renderRateTab(); 
-  } else if (tab === 'partner') { 
-    renderPartnerTab(); 
-  } else if (tab === 'prospect') { 
-    renderProspectTab(); 
-  } else { 
-    render(); 
-  }
 }
-
-// --- 🌟 2. 計算エンジン (2027・2028対応) ---
-function getCalc(type, amount, monthStr) {
-  let is28 = monthStr >= "2028-04"; let is27 = monthStr >= "2027-04";
-  let mult = 1.0; let fixC = null; let isDFL = true;
-  let rates = { kR: 1.0, jR: 1.0 };
-
-  if (type === "レシーブ") rates = is28 ? { kR: 0.4, jR: 0.4 } : is27 ? { kR: 0.4, jR: 0.6 } : { kR: 0.4, jR: 0.8 };
-  else if (type === "カレンシー" || type === "プレゼント") rates = is28 ? { kR: 0.5, jR: 0.5 } : is27 ? { kR: 0.5, jR: 0.75 } : { kR: 0.5, jR: 1.0 };
-  else if (type === "ストーリー") rates = is28 ? { kR: 0.3, jR: 0.3 } : is27 ? { kR: 0.3, jR: 0.45 } : { kR: 0.3, jR: 0.6 };
-  else if (type.includes("自動車")) { mult = 2.9/1000; fixC = (type === "自動車" ? 0.5 : 0.2); isDFL = false; }
-  else if (type === "損保その他") { mult = 1.4/1000; fixC = 0.2; isDFL = false; }
-  else if (type === "アフラック") { mult = 14.3/1000; fixC = 0.5; isDFL = false; }
-
-  let baseA = amount * mult;
-  let finalC = (fixC !== null) ? fixC : (baseA * rates.kR >= 500 ? 1.5 : baseA * rates.kR >= 300 ? 1.0 : 0.5);
-  return { baseA, rates, finalC, isDFL };
+function switchYear(year) { currentYear = year; render(); }
+function openForm(){ document.getElementById("modal").style.display="block"; }
+function closeForm(){ document.getElementById("modal").style.display="none"; }
+function pickDate(){ document.getElementById("date").showPicker(); }
+document.getElementById("date").onchange = () => document.getElementById("dateBtn").innerText = document.getElementById("date").value.slice(5);
+function pickMonth(){ document.getElementById("month").showPicker(); }
+document.getElementById("month").onchange = () => document.getElementById("monthBtn").innerText = document.getElementById("month").value.split("-")[1] + "月";
+function roundCases(c) { return Math.ceil(c * 10) / 10; }
+function getProductRates(type, monthStr) {
+  let is2028 = monthStr >= "2028-04"; let is2027 = monthStr >= "2027-04";
+  if (type === "レシーブ") { if (is2028) return { kR: 0.4, jR: 0.4 }; if (is2027) return { kR: 0.4, jR: 0.6 }; return { kR: 0.4, jR: 0.8 }; }
+  if (type === "カレンシー" || type === "プレゼント") { if (is2028) return { kR: 0.5, jR: 0.5 }; if (is2027) return { kR: 0.5, jR: 0.75 }; return { kR: 0.5, jR: 1.0 }; }
+  if (type === "ストーリー") { if (is2028) return { kR: 0.3, jR: 0.3 }; if (is2027) return { kR: 0.3, jR: 0.45 }; return { kR: 0.3, jR: 0.6 }; }
+  return { kR: 1.0, jR: 1.0 };
 }
-
-// --- 🌟 3. 成績タブ (詳細表示) ---
-function render() {
-  const allSales = JSON.parse(localStorage.getItem("sales_v2") || localStorage.getItem("sales") || "[]");
-  let years = new Set([new Date().getFullYear().toString()]);
-  allSales.forEach(s => { if(s.month) years.add(s.month.split("-")[0]); });
-  document.getElementById("year-tab-container").innerHTML = Array.from(years).sort((a,b)=>b-a).map(y => `<div class="year-tab ${y===currentYear?'active':''}" onclick="currentYear='${y}';render();">${y}年</div>`).join('');
-
-  const list = allSales.filter(s => s.month && s.month.startsWith(currentYear));
-  let monthly = {}; let kTot = {c:0, a:0}; let jTot = {c:0, a:0};
-  const kP = [[4,5,6],[7,8,9],[10,11,12],[1,2,3]];
-  const jP = [[3,4,5,6,7,8],[9,10,11,12,1,2]];
-
-  list.forEach(s => {
-    let type = s.receive?"レシーブ":s.currency?"カレンシー":s.present?"プレゼント":s.story?"ストーリー":s.auto?"自動車":s.other?"損保その他":s.aflac?"アフラック":s.auto_rev?"自動車更改":"通常";
-    let c = getCalc(type, s.amount, s.month);
-    let fA = s.shared ? c.baseA/2 : c.baseA;
-    let fC = s.shared ? Math.ceil((c.finalC/2)*10)/10 : c.finalC;
-    let m = parseInt(s.month.split("-")[1]);
-    if(!monthly[m]) monthly[m] = { items: [] };
-    monthly[m].items.push({...s, fA, fC, type, kR:c.rates.kR, jR:c.rates.jR, isDFL:c.isDFL});
-    if(kP[keepIndex].includes(m)){ kTot.c += fC; kTot.a += fA * c.rates.kR; }
-    if(jP[jobIndex].includes(m)){ jTot.c += fC; jTot.a += fA * c.rates.jR; }
+function getProductCalcData(type, amount, monthStr) {
+  let multiplier = 1.0; let fixedCases = null; let isDFL = true;
+  if (type === "自動車" || type === "自動車更改") { multiplier = 2.9 / 1000; fixedCases = (type === "自動車") ? 0.5 : 0.2; isDFL = false; }
+  else if (type === "損保その他") { multiplier = 1.4 / 1000; fixedCases = 0.2; isDFL = false; }
+  else if (type === "アフラック") { multiplier = 14.3 / 1000; fixedCases = 0.5; isDFL = false; }
+  let baseAmt = amount * multiplier; let rates = isDFL ? getProductRates(type, monthStr) : { kR: 1.0, jR: 1.0 };
+  let finalCases = fixedCases;
+  if (finalCases === null) { let dlForJudge = baseAmt * rates.kR; if (dlForJudge >= 500) finalCases = 1.5; else if (dlForJudge >= 300) finalCases = 1.0; else finalCases = 0.5; }
+  return { baseAmt, rates, finalCases, isDFL };
+}
+function saveSales(){
+  let mVal = document.getElementById("month").value; if(!mVal) { alert("月分を選択してください"); return; }
+  let data = { id: Date.now(), cases: parseFloat(document.getElementById("cases").value), amount: parseFloat(document.getElementById("amount").value) || 0, date: document.getElementById("date").value, month: mVal, shared: document.getElementById("chk_shared").checked, receive: document.getElementById("chk_receive").checked, currency: document.getElementById("chk_currency").checked, present: document.getElementById("chk_present").checked, story: document.getElementById("chk_story").checked, auto: document.getElementById("chk_auto").checked, other: document.getElementById("chk_other").checked, aflac: document.getElementById("chk_aflac").checked, auto_rev: document.getElementById("chk_auto_rev").checked };
+  let list = JSON.parse(localStorage.getItem("sales") || "[]"); list.push(data); localStorage.setItem("sales", JSON.stringify(list)); closeForm(); resetSalesForm(); render();
+}
+function resetSalesForm() { document.getElementById("amount").value = ""; document.querySelectorAll('#modal input[type="checkbox"]').forEach(c => c.checked = false); document.getElementById("dateBtn").innerText = "日付"; document.getElementById("monthBtn").innerText = "月分"; }
+function deleteSales(id){ let list = JSON.parse(localStorage.getItem("sales") || "[]").filter(i => i.id !== id); localStorage.setItem("sales", JSON.stringify(list)); render(); }
+function editSales(id){
+  let list = JSON.parse(localStorage.getItem("sales") || "[]"); let i = list.find(item => item.id === id); if(!i) return;
+  document.getElementById("cases").value = i.cases; document.getElementById("amount").value = i.amount; document.getElementById("date").value = i.date; document.getElementById("month").value = i.month; document.getElementById("chk_shared").checked = i.shared; document.getElementById("chk_receive").checked = i.receive; document.getElementById("chk_currency").checked = i.currency; document.getElementById("chk_present").checked = i.present; document.getElementById("chk_story").checked = i.story; document.getElementById("chk_auto").checked = i.auto; document.getElementById("chk_other").checked = i.other; document.getElementById("chk_aflac").checked = i.aflac; document.getElementById("chk_auto_rev").checked = i.auto_rev; deleteSales(id); openForm();
+}
+function previewPartner() {
+  let type = document.getElementById("partnerType").value; let val = parseFloat(document.getElementById("partnerAmount").value); let isShared = document.getElementById("chk_partner_shared").checked; let preview = document.getElementById("partnerPreview"); if (!val) { preview.innerHTML = ""; return; }
+  let nowMonth = new Date().toISOString().slice(0,7); let calc = getProductCalcData(type, val, nowMonth); let finalAmt = isShared ? calc.baseAmt / 2 : calc.baseAmt; let finalCas = isShared ? roundCases(calc.finalCases / 2) : calc.finalCases; preview.innerHTML = `${finalCas}件 → DL:${Math.floor(finalAmt * calc.rates.kR)} / 職選:${Math.floor(finalAmt * calc.rates.jR)}`;
+}
+function savePartner() {
+  let type = document.getElementById("partnerType").value; let amount = parseFloat(document.getElementById("partnerAmount").value); let shared = document.getElementById("chk_partner_shared").checked; if (!amount) return;
+  let list = JSON.parse(localStorage.getItem("partner") || "[]"); list.push({ id: Date.now(), type, amount, shared }); localStorage.setItem("partner", JSON.stringify(list)); document.getElementById("partnerAmount").value = ""; document.getElementById("chk_partner_shared").checked = false; previewPartner(); render();
+}
+function deletePartner(id) { let list = JSON.parse(localStorage.getItem("partner") || "[]").filter(i => i.id !== id); localStorage.setItem("partner", JSON.stringify(list)); render(); }
+function saveProspect(){
+  let name = document.getElementById("p-name").value; let cases = parseFloat(document.getElementById("p-cases").value); let amount = parseFloat(document.getElementById("p-amount").value); if(!name || isNaN(amount)) return;
+  let list = JSON.parse(localStorage.getItem("prospect") || "[]"); list.push({ id: Date.now(), name, cases, amount }); localStorage.setItem("prospect", JSON.stringify(list)); document.getElementById("p-name").value = ""; document.getElementById("p-amount").value = ""; render();
+}
+function deleteProspect(id){ let list = JSON.parse(localStorage.getItem("prospect") || "[]").filter(i => i.id !== id); localStorage.setItem("prospect", JSON.stringify(list)); render(); }
+function render(){
+  const allSalesList = JSON.parse(localStorage.getItem("sales") || "[]"); const partnerList = JSON.parse(localStorage.getItem("partner") || "[]"); const prospectList = JSON.parse(localStorage.getItem("prospect") || "[]");
+  let years = new Set(); years.add(new Date().getFullYear().toString()); allSalesList.forEach(item => { if(item.month) years.add(item.month.split("-")[0]); });
+  let sortedYears = Array.from(years).sort((a,b)=>b-a); let yearTabHtml = ""; sortedYears.forEach(y => { yearTabHtml += `<div class="year-tab ${y === currentYear ? 'active' : ''}" onclick="switchYear('${y}')">${y}年</div>`; }); document.getElementById("year-tab-container").innerHTML = yearTabHtml;
+  const list = allSalesList.filter(item => item.month && item.month.startsWith(currentYear)); list.sort((a,b)=>(a.date||"").localeCompare(b.date||""));
+  let monthly = {}; let keepPeriods = [[4,5,6],[7,8,9],[10,11,12],[1,2,3]]; let jobPeriods = [[3,4,5,6,7,8],[9,10,11,12,1,2]]; let keepTotal = {cases:0, amount:0}; let jobTotal = {cases:0, amount:0};
+  list.forEach(item => {
+    let m = parseInt(item.month.split("-")[1]); let type = "通常"; if(item.receive) type = "レシーブ"; else if(item.currency) type = "カレンシー"; else if(item.present) type = "プレゼント"; else if(item.story) type = "ストーリー"; else if(item.auto) type = "自動車"; else if(item.other) type = "損保その他"; else if(item.aflac) type = "アフラック"; else if(item.auto_rev) type = "自動車更改";
+    let calc = getProductCalcData(type, item.amount, item.month); let finalAmt = item.shared ? calc.baseAmt / 2 : calc.baseAmt; let finalCas = item.shared ? roundCases(calc.finalCases / 2) : calc.finalCases;
+    if(!monthly[m]) monthly[m] = { items: [] }; monthly[m].items.push({...item, d_cas: finalCas, d_amt: finalAmt, isDFL: calc.isDFL, kR: calc.rates.kR, jR: calc.rates.jR});
+    if(keepPeriods[keepIndex].includes(m)){ keepTotal.cases += finalCas; keepTotal.amount += finalAmt * calc.rates.kR; } if(jobPeriods[jobIndex].includes(m)){ jobTotal.cases += finalCas; jobTotal.amount += finalAmt * calc.rates.jR; }
   });
-
-  const bDown = kP[keepIndex].map(m => {
-    let c=0, a=0; if(monthly[m]) { monthly[m].items.forEach(i => { c+=i.fC; a+=i.fA*i.kR; }); }
-    return `${m}月:${c.toFixed(1)}件${Math.floor(a)}万`;
-  }).join(' / ');
-
-  let sHtml = `<div class="card header"><button onclick="keepIndex=(keepIndex+3)%4;render()">◀</button> 四半期合計 ${currentYear}年 ${keepIndex+1}期 <button onclick="keepIndex=(keepIndex+1)%4;render()">▶</button><br>現在：${kTot.c.toFixed(1)}件 ${Math.floor(kTot.a)}万<br><span style="font-size:12px; font-weight:normal;">キープ残：${(2-kTot.c).toFixed(1)}件 ${Math.floor(Math.max(0,3000-kTot.a))}万 / アップ残：${(4-kTot.c).toFixed(1)}件 ${Math.floor(Math.max(0,6000-kTot.a))}万<br>(${bDown})</span></div><div class="card header"><button onclick="jobIndex=(jobIndex+1)%2;render()">◀</button> 職選合計 ${jobIndex===0?"前半":"後半"} <button onclick="jobIndex=(jobIndex+1)%2;render()">▶</button><br>現在：${jTot.c.toFixed(1)}件 ${Math.floor(jTot.a)}万<br><span style="font-size:12px; font-weight:normal;">デザイナー残：${(9-jTot.c).toFixed(1)}件 ${Math.floor(Math.max(0,1800-jTot.a))}万 / チーフ残：${(12-jTot.c).toFixed(1)}件 ${Math.floor(Math.max(0,6000-jTot.a))}万</span></div>`;
-
+  let breakdown = keepPeriods[keepIndex].map(m => { let mC = 0, mA = 0; if(monthly[m]) { monthly[m].items.forEach(i => { mC += i.d_cas; mA += i.d_amt * i.kR; }); } return `${m}月：${mC.toFixed(1)}件${Math.floor(mA)}万`; }).join(" / ");
+  let sHtml = `<div class="card header"><button onclick="changeKeep(-1)">◀</button> 四半期合計 ${currentYear}年 ${keepIndex+1}期 <button onclick="changeKeep(1)">▶</button><br>現在：${keepTotal.cases.toFixed(1)}件 ${Math.floor(keepTotal.amount)}万<br><span style="font-size:12px; font-weight:normal;">キープ残：${(2-keepTotal.cases).toFixed(1)}件 ${3000-Math.floor(keepTotal.amount)}万 / アップ残：${(4-keepTotal.cases).toFixed(1)}件 ${6000-Math.floor(keepTotal.amount)}万<br>(${breakdown})</span></div><div class="card header"><button onclick="changeJob(-1)">◀</button> 職選合計 ${jobIndex===0?"前半":"後半"} <button onclick="changeJob(1)">▶</button><br>現在：${jobTotal.cases.toFixed(1)}件 ${Math.floor(jobTotal.amount)}万<br><span style="font-size:12px; font-weight:normal;">デザイナー残：${(9-jobTotal.cases).toFixed(1)}件 ${1800-Math.floor(jobTotal.amount)}万 / チーフ残：${(12-jobTotal.cases).toFixed(1)}件 ${6000-Math.floor(jobTotal.amount)}万</span></div>`;
   Object.keys(monthly).sort((a,b)=>b-a).forEach(m => {
-    let items = monthly[m].items; let mC_DL=0, mC_DFL=0, mK_DL=0, mK_DFL=0, mJ_DL=0, mJ_DFL=0;
-    sHtml += `<div class="card"><b>${m}月分</b><br>`;
-    items.sort((a,b)=>(a.date||"").localeCompare(b.date||"")).forEach(i => {
-      if(i.isDFL) { mC_DFL+=i.fC; mK_DFL+=i.fA*i.kR; mJ_DFL+=i.fA*i.jR; } else { mC_DL+=i.fC; mK_DL+=i.fA; mJ_DL+=i.fA; }
-      let names = (i.shared?"共":"")+(i.receive?"レシ":"")+(i.currency?"カレ":"")+(i.present?"プレ":"")+(i.story?"スト":"")+(i.auto?"車":"")+(i.other?"損":"")+(i.aflac?"ア":"")+(i.auto_rev?"更":"");
-      sHtml += `<div style="display:flex; justify-content:space-between; margin-top:8px; font-size:12px; border-bottom:1px dotted #ccc;"><div>${(i.date||"").slice(8)}日 ${i.fC}件 ${Math.floor(i.fA)}万 <span style="color:#007aff;">${names}</span></div><button onclick="deleteSales(${i.id})">削</button></div>`;
+    let items = monthly[m].items; let mC_DL=0, mC_DFL=0, mK_DL=0, mK_DFL=0, mJ_DL=0, mJ_DFL=0; sHtml += `<div class="card"><b>${m}月分</b><br>`;
+    items.forEach(i => { if(i.isDFL) { mC_DFL += i.d_cas; mK_DFL += i.d_amt * i.kR; mJ_DFL += i.d_amt * i.jR; } else { mC_DL += i.d_cas; mK_DL += i.d_amt; mJ_DL += i.d_amt; }
+      let names = []; if(i.shared)names.push("共"); if(i.receive)names.push("レシ"); if(i.currency)names.push("カレ"); if(i.present)names.push("プレ"); if(i.story)names.push("スト"); if(i.auto)names.push("車"); if(i.other)names.push("損"); if(i.aflac)names.push("ア"); if(i.auto_rev)names.push("更");
+      sHtml += `<div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; font-size:12px; border-bottom:1px dotted #ccc;"><div>${(i.date||"").slice(8)}日 ${i.d_cas}件 ${Math.floor(i.d_amt)}万 <span style="color:#007aff;">${names.join("")}</span></div><div><button onclick="editSales(${i.id})" style="margin-right:4px;">編集</button><button onclick="deleteSales(${i.id})">削除</button></div></div>`;
     });
     sHtml += `<div style="margin-top:8px; font-size:11px; line-height:1.5;"><b>合計：</b>DL ${mC_DL.toFixed(1)} + DFL ${mC_DFL.toFixed(1)} = ${(mC_DL + mC_DFL).toFixed(1)}件<br><b>DL：</b>DL ${Math.floor(mK_DL)} + DFL ${Math.floor(mK_DFL)} = ${Math.floor(mK_DL + mK_DFL)}万<br><b>職選：</b>DL ${Math.floor(mJ_DL)} + DFL ${Math.floor(mJ_DFL)} = ${Math.floor(mJ_DL + mJ_DFL)}万</div></div>`;
   });
   document.getElementById("tab-sales").innerHTML = sHtml;
+  let pTabHtml = `<div class="card"><div style="display:flex; justify-content:space-between;"><b>提携入力</b><button onclick="openHelper()" style="font-size:10px; padding:2px 5px; background:#e3f0ff;">🎂 生年月日 & 占い</button></div><br><div class="input-row"><select id="partnerType" onchange="previewPartner()" style="flex:1.2;"><option value="レシーブ">レシーブ</option><option value="カレンシー">カレンシー</option><option value="プレゼント">プレゼント</option><option value="ストーリー">ストーリー</option><option value="自動車">自動車</option><option value="損保その他">損保その他</option><option value="アフラック">アフラック</option><option value="自動車更改">自動車更改</option></select><input id="partnerAmount" type="number" placeholder="万" oninput="previewPartner()" style="flex:0.8;"><label class="check-item" style="background:#eee; padding:8px; border-radius:10px;"><input type="checkbox" id="chk_partner_shared" onchange="previewPartner()"> 共</label><button class="primary" onclick="savePartner()">追加</button></div><div id="partnerPreview" style="font-size:12px; color:#007aff; font-weight:bold; height:15px; margin-top:5px;"></div></div>`;
+  let groupedPartner = {}; partnerList.forEach(i => { if(!groupedPartner[i.type]) groupedPartner[i.type] = []; groupedPartner[i.type].push(i); });
+  for(let type in groupedPartner){ pTabHtml += `<div class="card"><b>${type}</b>`; groupedPartner[type].forEach(i => { let nowM = new Date().toISOString().slice(0,7); let calc = getProductCalcData(type, i.amount, nowM); let displayAmt = i.shared ? calc.baseAmt / 2 : calc.baseAmt; let displayCas = i.shared ? roundCases(calc.finalCases / 2) : calc.finalCases; pTabHtml += `<div style="display:flex; justify-content:space-between; margin-top:8px; font-size:13px;"><div>${displayCas}件 ${Math.floor(displayAmt)}万${i.shared?'(共)':''} → DL:${Math.floor(displayAmt*calc.rates.kR)}/職選:${Math.floor(displayAmt*calc.rates.jR)}</div><button onclick="deletePartner(${i.id})">削除</button></div>`; }); pTabHtml += `</div>`; }
+  document.getElementById("tab-partner").innerHTML = pTabHtml;
+  let pTC=0; let pTA=0; let pLHtml=""; prospectList.forEach(i => { pTC+=i.cases; pTA+=i.amount; pLHtml+=`<div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #eee; font-size:13px;"><div>${i.name}：${i.cases}件 ${i.amount}万</div><button onclick="deleteProspect(${i.id})">削除</button></div>`; });
+  let bC = 0, bA = 0; if(currentTotalCat === "職選") { bC = jobTotal.cases; bA = jobTotal.amount; } else if(currentTotalCat === "キープアップ") { bC = keepTotal.cases; bA = keepTotal.amount; } else if(currentTotalCat === "月") { let nowM = new Date().getMonth() + 1; if(monthly[nowM]){ monthly[nowM].items.forEach(i => { bC += i.d_cas; bA += i.d_amt * i.jR; }); } }
+  document.getElementById("tab-prospect").innerHTML = `<div class="card" style="margin-bottom:0; border-radius:14px 14px 0 0;"><div style="display:flex; justify-content:space-between; margin-bottom:10px;"><h3>見込み入力</h3><button class="primary" onclick="saveProspect()" style="padding:8px 20px;">保存</button></div><div class="input-row"><input type="text" id="p-name" placeholder="名前" style="flex:2;"><select id="p-cases" style="flex:1.2;"><option value="0.5">0.5件</option><option value="1" selected>1件</option><option value="1.5">1.5件</option></select><input type="number" id="p-amount" placeholder="万" style="flex:1;"></div></div><div class="card" style="margin-top:0; border-radius:0 0 14px 14px; border-top:1px dashed #ccc;"><div style="background:#f9f9f9; padding:8px; border-radius:8px; margin-bottom:10px;">${pLHtml || 'なし'}</div><div>見込：${pTC.toFixed(1)}件 / ${Math.floor(pTA)}万</div><div style="padding-top:10px; border-top:2px solid #333; font-weight:bold;">合計 <select onchange="currentTotalCat=this.value; render();"><option value="職選" ${currentTotalCat==="職選"?"selected":""}>職選</option><option value="キープアップ" ${currentTotalCat==="キープアップ"?"selected":""}>キープアップ</option><option value="月" ${currentTotalCat==="月"?"selected":""}>月</option></select> ：${(bC + pTC).toFixed(1)}件 / ${Math.floor(bA + pTA)}万</div></div>`;
 }
-
-// --- 🌟 4. 提携タブ (自動計算プレビュー) ---
-function renderPartnerTab() {
-  const pList = JSON.parse(localStorage.getItem("partner") || "[]");
-  let pListH = "";
-  const grp = pList.reduce((acc, p) => { (acc[p.type] = acc[p.type] || []).push(p); return acc; }, {});
-  for (let type in grp) {
-    pListH += `<div class="card"><b>${type}</b>` + grp[type].map(p => {
-      let c = getCalc(p.type, p.amount, new Date().toISOString().slice(0,7));
-      let dA = p.shared ? c.baseA/2 : c.baseA; let dC = p.shared ? Math.ceil((c.finalC/2)*10)/10 : c.finalC;
-      return `<div style="display:flex; justify-content:space-between; margin-top:8px; font-size:13px;"><span>${dC}件 ${Math.floor(dA)}万${p.shared?'(共)':''} → DL:${Math.floor(dA*c.rates.kR)}/職:${Math.floor(dA*c.rates.jR)}</span><button onclick="deletePartner(${p.id})">削</button></div>`;
-    }).join('') + `</div>`;
-  }
-  document.getElementById("tab-partner").innerHTML = `<div class="card"><div style="display:flex; justify-content:space-between; align-items:center;"><b>提携入力</b><button onclick="openHelper()" style="background:#e3f0ff; font-size:10px;">🎂 年齢・占い</button></div><br><div class="compact-row"><select id="pType" onchange="previewPartner()" style="flex:1.2;"><option value="レシーブ">レシーブ</option><option value="カレンシー">カレンシー</option><option value="プレゼント">プレゼント</option><option value="ストーリー">ストーリー</option><option value="自動車">自動車</option><option value="損保その他">損保その他</option><option value="アフラック">アフラック</option><option value="自動車更改">自動車更改</option></select><input type="number" id="pAmt" placeholder="万" oninput="previewPartner()" style="flex:0.8;"><label class="chk-btn"><input type="checkbox" id="pShared" onchange="previewPartner()"> 共</label><button class="primary" onclick="savePartner()">追加</button></div><div id="partnerPreview"></div></div><div id="pListContainer">${pListH}</div>`;
-}
-
-function previewPartner() {
-  const t = document.getElementById("pType").value; const a = parseFloat(document.getElementById("pAmt").value); const s = document.getElementById("pShared").checked; const target = document.getElementById("partnerPreview");
-  if(!a) { target.innerText = ""; return; }
-  let c = getCalc(t, a, new Date().toISOString().slice(0,7));
-  let dA = s ? c.baseA/2 : c.baseA; let dC = s ? Math.ceil((c.finalC/2)*10)/10 : c.finalC;
-  target.innerText = `${dC}件 → DL:${Math.floor(dA * c.rates.kR)} / 職選:${Math.floor(dA * c.rates.jR)}`;
-}
-
-// --- 🌟 5. 利率タブ (ズレ修正・差分表示) ---
-function renderRateTab() {
-  document.getElementById("tab-rate").innerHTML = `<div class="card"><div style="display:flex; justify-content:space-between; align-items:center;"><h3 style="margin:0;">為替・利率 (本日)</h3><button onclick="updateFinanceData()">更新</button></div><div class="rate-grid"> <div class="rate-item"><b>米ドル</b><br>為替: <span id="uR">--</span><br>利率: <span id="uI">--</span><div class="diff-text">15日前比<br>為: <span id="uRateDiff">--</span><br>利: <span id="uIntDiff">--</span></div></div> <div class="rate-item"><b>豪ドル</b><br>為替: <span id="aR">--</span><br>利率: <span id="aI">--</span><div class="diff-text">15日前比<br>為: <span id="aRateDiff">--</span><br>利: <span id="aIntDiff">--</span></div></div> </div> <h4 style="margin:15px 0 5px 0;">履歴 (1日・16日)</h4><div id="rateHist" style="font-size:11px; background:#f9f9f9; padding:8px; border-radius:8px; max-height:160px; overflow-y:auto;">読込中...</div></div> <div class="card"><h3>DFL公式サイト</h3><div style="display:flex; gap:5px; flex-wrap:wrap;"><button onclick="window.open('https://www.d-frontier-life.co.jp/customer/rate/tsumitateriritsu_history.html?param=index_teiki_choice_23&product=&agency=')">レシ</button><button onclick="window.open('https://www.d-frontier-life.co.jp/customer/rate/hendo_choice_19_05&product=&agency=')">カレ</button><button onclick="window.open('https://www.d-frontier-life.co.jp/customer/rate/hendo_shushin_choice_20_6&product=&agency=')">プレ</button></div></div>`;
-  updateFinanceData();
-}
-
-async function updateFinanceData() {
-  try {
-    const fx = await fetch("https://open.er-api.com/v6/latest/USD").then(r => r.json());
-    const curUR = fx.rates.JPY; const curAR = (1/fx.rates.AUD)*fx.rates.JPY;
-    const uO = await fetchFred("DGS10"); const aO = await fetchFred("IRLTLT01AUM156N");
-    document.getElementById("uR").innerText = curUR.toFixed(2)+"円";
-    document.getElementById("aR").innerText = curAR.toFixed(2)+"円";
-    document.getElementById("uI").innerText = parseFloat(uO[0].value).toFixed(2)+"%";
-    document.getElementById("aI").innerText = parseFloat(aO[0].value).toFixed(2)+"%";
-    
-    // 🌟 履歴保存 (名前を fin_v7 にしてリセット)
-    let h = JSON.parse(localStorage.getItem("fin_v7") || "[]");
-    const today = new Date().toISOString().split('T')[0];
-    uO.forEach((o, i) => { 
-      if(!h.find(x => x.d === o.date)) h.push({d: o.date, uR: (o.date===today?curUR:null), aR: (o.date===today?curAR:null), uI: parseFloat(o.value), aI: parseFloat(aO[i].value)});
-      else if(o.date === today) { let idx = h.findIndex(x => x.d === today); h[idx].uR = curUR; h[idx].aR = curAR; h[idx].uI = parseFloat(o.value); h[idx].aI = parseFloat(aO[i].value); }
-    });
-    h.sort((a,b) => new Date(b.d) - new Date(a.d));
-    
-    const past = h.find(x => x.d <= new Date(new Date().setDate(new Date().getDate()-15)).toISOString().split('T')[0]);
-    if(past) {
-      if(past.uR) setDiffT("uRateDiff", curUR - past.uR, "円"); if(past.aR) setDiffT("aRateDiff", curAR - past.aR, "円");
-      setDiffT("uIntDiff", parseFloat(uO[0].value) - past.uI, "%"); setDiffT("aIntDiff", parseFloat(aO[0].value) - past.aI, "%");
-    }
-    document.getElementById("rateHist").innerHTML = h.filter(x => x.d.endsWith("-01") || x.d.endsWith("-16")).slice(0,10).map(x => `<div>${x.d}: 米 ${x.uR?x.uR.toFixed(1):'--'} / ${x.uI}% | 豪 ${x.aR?x.aR.toFixed(1):'--'} / ${x.aI}%</div>`).join('');
-    localStorage.setItem("fin_v7", JSON.stringify(h.slice(0,100)));
-  } catch(e) {}
-}
-async function fetchFred(id) { const u = `https://api.stlouisfed.org/fred/series/observations?series_id=${id}&api_key=${FRED_KEY}&file_type=json&sort_order=desc&limit=20`; return await fetch("https://corsproxy.io/?" + encodeURIComponent(u)).then(r => r.json()).then(d => d.observations); }
-function setDiffT(id, v, u) { const el = document.getElementById(id); if(!el) return; el.innerText = (v>0?"+":"") + v.toFixed(2) + u; el.style.color = v>0 ? "red" : "blue"; }
-
-// --- 🌟 6. 見込みタブ ---
-function renderProspectTab() {
-  const pList = JSON.parse(localStorage.getItem("prospect") || "[]");
-  let pC=0, pA=0; pList.forEach(p => { pC+=p.cases; pA+=p.amount; });
-  document.getElementById("tab-prospect").innerHTML = `<div class="card"><h3>見込み入力</h3><div class="compact-row"><input id="proName" placeholder="名前" style="flex:1.5;"><select id="proCas" style="flex:0.7;"><option value="0.5">0.5</option><option value="1" selected>1</option></select><input id="proAmt" type="number" placeholder="万" style="flex:0.8;"><button class="primary" onclick="saveProspect()">追加</button></div></div><div class="card"><b>見込計: ${pC.toFixed(1)}件 / ${Math.floor(pA)}万</b><br><br>${pList.map(p => `<div style="display:flex; justify-content:space-between; font-size:13px; padding:5px 0; border-bottom:1px solid #eee;"><span>${p.name}: ${p.cases}件 ${p.amount}万</span><button onclick="deleteProspect(${p.id})">削除</button></div>`).join('')}</div>`;
-}
-
-// --- 🌟 7. おたすけ計算機 (3/9魚座・和暦完全版) ---
-function calcHelper() {
-  const era = document.querySelector('input[name="era"]:checked').value;
-  const y = parseInt(document.getElementById("h-year").value);
-  const m = parseInt(document.getElementById("h-month").value);
-  const d = parseInt(document.getElementById("h-day").value);
-  if(!y || !m || !d) return;
-  let ad = (era==="令和")?y+2018:(era==="平成")?y+1988:(era==="昭和")?y+1925:y;
-  const today = new Date(2026, 3, 4); let age = 2026 - ad; if(today.getMonth()+1 < m || (today.getMonth()+1===m && today.getDate()<d)) age--;
-  let wa = (ad >= 2019) ? `令和${ad - 2018 === 0 ? '元' : ad - 2018}年` : (ad >= 1989) ? `平成${ad - 1988}年` : `昭和${ad - 1925}年`;
-  document.getElementById("helper-result").innerHTML = `西暦:${ad}年 / ${wa}<br>現在 <b>${age}才</b>`;
-  const zs = [{n:"山羊座",s:[12,22],e:[1,19]},{n:"水瓶座",s:[1,20],e:[2,18]},{n:"魚座",s:[2,19],e:[3,20]},{n:"牡羊座",s:[3,21],e:[4,19]},{n:"牡牛座",s:[4,20],e:[5,20]},{n:"双子座",s:[5,21],e:[6,21]},{n:"蟹座",s:[6,22],e:[7,22]},{n:"獅子座",s:[7,23],e:[8,22]},{n:"乙女座",s:[8,23],e:[9,22]},{n:"天秤座",s:[9,23],e:[10,23]},{n:"蠍座",s:[10,24],e:[11,22]},{n:"射手座",s:[11,23],e:[12,21]}];
-  let mine = zs.find(z => (m===z.s[0]&&d>=z.s[1]) || (m===z.e[0]&&d<=z.e[1])) || zs[0];
-  document.getElementById("fortune-box").style.display = "block";
-  document.getElementById("zodiac-display").innerText = "あなたは " + mine.n;
-  document.getElementById("fortune-text").innerText = (m===3&&d===9) ? "今日は最高にハッピーな日！うどんを食べてパワーアップ！" : "素晴らしい幸運が舞い込む予感の一日です。";
-  document.getElementById("lucky-food").innerText = "ラッキーフード: うどん";
-}
-
-// --- 🌟 8. データ保存・削除 ---
-function saveSales() {
-  const m = document.getElementById("month").value; if(!m) return;
-  const d = { id:Date.now(), amount:parseFloat(document.getElementById("amount").value)||0, month:m, date:document.getElementById("date").value, shared:document.getElementById("chk_shared").checked, receive:document.getElementById("chk_receive").checked, currency:document.getElementById("chk_currency").checked, present:document.getElementById("chk_present").checked, story:document.getElementById("chk_story").checked, auto:document.getElementById("chk_auto").checked, other:document.getElementById("chk_other").checked, aflac:document.getElementById("chk_aflac").checked, auto_rev:document.getElementById("chk_auto_rev").checked };
-  let l = JSON.parse(localStorage.getItem("sales_v2") || "[]"); l.push(d); localStorage.setItem("sales_v2", JSON.stringify(l));
-  closeForm(); render();
-}
-function deleteSales(id) { let l = JSON.parse(localStorage.getItem("sales_v2") || "[]").filter(i=>i.id!==id); localStorage.setItem("sales_v2", JSON.stringify(l)); render(); }
-function savePartner() { const t=document.getElementById("pType").value; const a=parseFloat(document.getElementById("pAmt").value); if(!a) return; let l=JSON.parse(localStorage.getItem("partner")||"[]"); l.push({id:Date.now(),type:t,amount:a,shared:document.getElementById("pShared").checked}); localStorage.setItem("partner", JSON.stringify(l)); document.getElementById("pAmt").value=""; renderPartnerTab(); }
-function deletePartner(id) { let l=JSON.parse(localStorage.getItem("partner")||"[]").filter(i=>i.id!==id); localStorage.setItem("partner", JSON.stringify(l)); renderPartnerTab(); }
-function saveProspect() { const n=document.getElementById("proName").value; const c=parseFloat(document.getElementById("proCas").value); const a=parseFloat(document.getElementById("proAmt").value); if(!n||!a) return; let l=JSON.parse(localStorage.getItem("prospect")||"[]"); l.push({id:Date.now(),name:n,cases:c,amount:a}); localStorage.setItem("prospect", JSON.stringify(l)); renderProspectTab(); }
-function deleteProspect(id) { let l=JSON.parse(localStorage.getItem("prospect")||"[]").filter(i=>i.id!==id); localStorage.setItem("prospect", JSON.stringify(l)); renderProspectTab(); }
-
-// --- 🌟 初期化 ---
-switchTab('sales');
+function changeKeep(n){ keepIndex=(keepIndex+n+4)%4; render(); }
+function changeJob(n){ jobIndex=(jobIndex+n+2)%2; render(); }
+render();
 </script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js');
+  }
+</script>
+  
+  <script src="rate.js"></script>
+  
 </body>
 </html>
