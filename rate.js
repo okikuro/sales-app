@@ -110,16 +110,16 @@ function saveAndSyncHistory(uR, aR, uList, aList) {
   const todayData = history.find(item => item.date === todayStr);
   const fifteenDaysAgo = new Date();
   fifteenDaysAgo.setDate(fifteenDaysAgo.getDate() - 15);
-  const pastData = history.slice().reverse().find(item => item.date <= fifteenDaysAgo.toISOString().split('T')[0]);
+  const pastData = history[history.length - 15];
   
-  if (todayData && pastData) {
-    if (pastData.usdR) {
-      displayDiff("usdRateDiff", todayData.usdR - pastData.usdR, "円");
-      displayDiff("audRateDiff", todayData.audR - pastData.audR, "円");
-    }
-    displayDiff("usdInterestDiff", todayData.usdI - pastData.usdI, "%");
-    displayDiff("audInterestDiff", todayData.audI - pastData.audI, "%");
+if (todayData && pastData) {
+  if (pastData.usdR !== null) {
+    displayDiff("usdRateDiff", todayData.usdR - pastData.usdR, "円");
+    displayDiff("audRateDiff", todayData.audR - pastData.audR, "円");
   }
+  displayDiff("usdInterestDiff", todayData.usdI - pastData.usdI, "%");
+  displayDiff("audInterestDiff", todayData.audI - pastData.audI, "%");
+}
   
   const specialHistory = history.filter(item => {
     const d = new Date(item.date).getDate();
