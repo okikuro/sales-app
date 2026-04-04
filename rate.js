@@ -90,21 +90,23 @@ function saveAndSyncHistory(uR, aR, uList, aList) {
   uList.forEach((obs, index) => {
     const date = obs.date;
     if (!history.find(item => item.date === date)) {
-      history.push({
-        date: date,
-        audR: (date === todayStr) ? aR : null,
-        usdI: parseFloat(parseFloat(obs.value).toFixed(2)),
-        audI: parseFloat(parseFloat(aList[index].value).toFixed(2))
-      });
-    } else if (date === todayStr) {
-      const idx = history.findIndex(item => item.date === date);
-      history[idx].usdR = uR;
-      history[idx].audR = aR;
-      history[idx].usdI = parseFloat(parseFloat(obs.value).toFixed(2));
-      history[idx].audI = parseFloat(parseFloat(aList[index].value).toFixed(2));
-    }
+  history.push({
+    date: date,
+    usdR: uR,
+    audR: aR,
+    usdI: parseFloat(parseFloat(obs.value).toFixed(2)),
+    audI: parseFloat(parseFloat(aList[index].value).toFixed(2))
+  });
+} else if (date === todayStr) {
+  const idx = history.findIndex(item => item.date === date);
+  history[idx].usdR = uR;
+  history[idx].audR = aR;
+  history[idx].usdI = parseFloat(parseFloat(obs.value).toFixed(2));
+  history[idx].audI = parseFloat(parseFloat(aList[index].value).toFixed(2));
+}
   });
   
+
   history.sort((a, b) => new Date(a.date) - new Date(b.date));
   const todayData = history.find(item => item.date === todayStr);
   const fifteenDaysAgo = new Date();
@@ -142,10 +144,3 @@ function displayDiff(id, diff, unit) {
   el.style.color = diff > 0 ? "red" : (diff < 0 ? "blue" : "black");
 }
 
-history.push({
-  date: date,
-  usdR: uR,
-  audR: aR,
-  usdI: parseFloat(parseFloat(obs.value).toFixed(2)),
-  audI: parseFloat(parseFloat(aList[index].value).toFixed(2))
-});
