@@ -204,6 +204,9 @@ function showZodiacFortune(m, d) {
   document.getElementById("lucky-food").innerText = "今日のラッキー食べ物：" + foods[foodIndex];
 }
 
+
+
+
 // 既存の関数 (変更なし)
 function switchTab(tab) {
   document.querySelectorAll('[id^="tab-"]').forEach(el => el.style.display = "none");
@@ -303,6 +306,16 @@ render();
 </script>
   
   <script src="rate.js?v=2"></script>
+  
+  
+  
+  <script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js');
+  }
+</script>
+
+<script src="rate.js?v=4"></script>
   
 </body>
 </html>
