@@ -43,7 +43,7 @@ window.addEventListener('load', () => {
       <div style="display:flex; gap:5px; flex-wrap:wrap;">
         <button onclick="window.open('https://www.d-frontier-life.co.jp/customer/rate/tsumitateriritsu_history.html?param=index_teiki_choice_23&product=&agency=')" style="flex:1;">レシーブ</button>
         <button onclick="window.open('https://www.d-frontier-life.co.jp/customer/rate/tsumitateriritsu_history.html?param=hendo_choice_19_05&product=&agency=')" style="flex:1;">カレンシー</button>
-        <button onclick="window.open('https://www.d-frontier-life.co.jp/customer/rate/hendo_shushin_choice_20_6&product=&agency=')" style="flex:1;">プレゼント</button>
+        <button onclick="window.open('https://www.d-frontier-life.co.jp/customer/rate/tsumitateriritsu_history.html?param=hendo_shushin_choice_20_6&product=&agency=" style="flex:1;">プレゼント</button>
       </div>
     </div>
     `;
@@ -76,7 +76,340 @@ async function updateAllData() {
 }
 
 async function fetchFredList(seriesId) {
-  const targetUrl = `https://api.stlouisfed.org/fred/series/observations?series_id=${seriesId}&api_key=${FRED_API_KEY}&file_type=json&sort_order=desc&limit=20`;
+  const targetUrl = `https://api.stlouisfed.org/fred/series/observations?<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <link rel="stylesheet" href="rate.css">
+  <link rel="manifest" href="manifest.json">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>成績管理 Pro</title>
+  <style>
+    body { margin: 0; font-family: sans-serif; background: #f5f6fa; padding-bottom: 100px; }
+    .card { background: white; margin: 10px; padding: 14px; border-radius: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;}
+    .header { background:#e3f0ff; padding:10px; font-weight:bold; line-height: 1.6; }
+    button { padding: 6px 10px; font-size: 12px; border-radius: 8px; border: none; background: #e0e7ff; cursor: pointer; }
+    input, select { padding:8px; border-radius:10px; border:1px solid #ccc; font-size: 13px; }
+    .year-tabs { display: flex; gap: 8px; overflow-x: auto; padding: 10px; background: #fff; border-bottom: 1px solid #ddd; }
+    .year-tab { padding: 6px 15px; background: #eee; border-radius: 20px; font-size: 12px; white-space: nowrap; cursor: pointer; }
+    .year-tab.active { background: #007aff; color: white; font-weight: bold; }
+    .input-row { display: flex; gap: 4px; align-items: center; margin-bottom: 12px; }
+    .input-row input, .input-row select { flex: 1; min-width: 0; }
+    .check-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
+    .check-item { font-size: 11px; display: flex; align-items: center; gap: 2px; white-space: nowrap; }
+    .primary { background:#007aff; color:white; }
+    .fab { position: fixed; bottom: 80px; right: 20px; width: 60px; height: 60px; background: #007aff; color: white; font-size: 30px; border-radius: 50%; text-align: center; line-height: 60px; z-index: 100; }
+    .modal { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:none; z-index: 200; }
+    .modal-content { background:white; margin:40px 15px; padding:20px; border-radius:16px; max-height: 90vh; overflow-y: auto; }
+    .nav-bar { position:fixed; bottom:0; width:100%; height:60px; background:white; display:flex; border-top:1px solid #ddd; z-index: 100; }
+    .nav-item { flex:1; text-align:center; padding-top:10px; font-size: 12px; cursor: pointer; color: #666; }
+    .helper-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); display:none; z-index: 300; align-items: center; justify-content: center; }
+    .helper-box { background: white; width: 90%; padding: 20px; border-radius: 16px; position: relative; }
+    .helper-input-row { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; font-size: 12px; margin-bottom: 15px; }
+    .helper-input-row input[type="number"] { width: 50px; }
+    .helper-result { background: #f0f7ff; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; font-weight: bold; line-height: 1.6; }
+    .fortune-box { border-top: 1px dashed #ccc; padding-top: 10px; font-size: 13px; color: #555; }
+    .zodiac-name { color: #007aff; font-size: 16px; font-weight: bold; margin-bottom: 5px; display: block;}
+  </style>
+</head>
+<body>
+
+<div id="year-tab-container" class="year-tabs"></div>
+<div id="tab-sales"></div>
+<div id="tab-partner" style="display:none;"></div>
+<div id="tab-rate" style="display:none;"></div>
+<div id="tab-prospect" style="display:none;"></div>
+
+<div class="fab" onclick="openForm()">＋</div>
+
+<div class="helper-overlay" id="helper-overlay">
+  <div class="helper-box">
+    <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+      <h3 style="margin:0;">生年月日 & 占い</h3>
+      <button onclick="closeHelper()" style="background:#ff3b30; color:white;">閉じる</button>
+    </div>
+    <div class="helper-input-row">
+      <label><input type="radio" name="era" value="西暦" checked onchange="calcHelper()">西暦</label>
+      <label><input type="radio" name="era" value="令和" onchange="calcHelper()">令和</label>
+      <label><input type="radio" name="era" value="平成" onchange="calcHelper()">平成</label>
+      <label><input type="radio" name="era" value="昭和" onchange="calcHelper()">昭和</label>
+      <input type="number" id="h-year" placeholder="年" oninput="calcHelper()">年
+      <input type="number" id="h-month" placeholder="月" oninput="calcHelper()">月
+      <input type="number" id="h-day" placeholder="日" oninput="calcHelper()">日
+    </div>
+    <div class="helper-result" id="helper-result">生年月日を入力してください</div>
+    <div class="fortune-box" id="fortune-box" style="display:none;">
+      <span class="zodiac-name" id="zodiac-display"></span>
+      今日の運勢★<br>
+      <span id="fortune-text">...</span><br>
+      <span id="lucky-food" style="font-size: 11px; color: #888;"></span>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <h3>成績入力</h3>
+    <div class="input-row">
+      <select id="cases"><option value="0.1">0.1</option><option value="0.2">0.2</option><option value="0.5">0.5</option><option value="1" selected>1</option><option value="1.5">1.5</option><option value="2">2</option></select>
+      <input type="number" id="amount" placeholder="金額(万)">
+      <button onclick="pickDate()" id="dateBtn">日付</button>
+      <button onclick="pickMonth()" id="monthBtn">月分</button>
+    </div>
+    <div class="check-grid">
+      <label class="check-item"><input type="checkbox" id="chk_shared"> 共同</label>
+      <label class="check-item"><input type="checkbox" id="chk_receive"> レシーブ</label>
+      <label class="check-item"><input type="checkbox" id="chk_currency"> カレンシー</label>
+      <label class="check-item"><input type="checkbox" id="chk_present"> プレゼント</label>
+      <label class="check-item"><input type="checkbox" id="chk_story"> ストーリー</label>
+      <label class="check-item"><input type="checkbox" id="chk_auto"> 自動車</label>
+      <label class="check-item"><input type="checkbox" id="chk_other"> 損保その他</label>
+      <label class="check-item"><input type="checkbox" id="chk_aflac"> アフラック</label>
+      <label class="check-item"><input type="checkbox" id="chk_auto_rev"> 車の更改</label>
+    </div>
+    <input type="date" id="date" style="display:none;">
+    <input type="month" id="month" style="display:none;">
+    <button class="primary" style="width:100%; padding:15px;" onclick="saveSales()">保存</button>
+    <button onclick="closeForm()" style="width:100%; background:none; margin-top:10px;">閉じる</button>
+  </div>
+</div>
+
+<div class="nav-bar">
+  <div class="nav-item" onclick="switchTab('sales')">成績</div>
+  <div class="nav-item" onclick="switchTab('partner')">提携</div>
+  <div class="nav-item" onclick="switchTab('rate')">利率</div>
+  <div class="nav-item" onclick="switchTab('prospect')">見込み</div>
+</div>
+
+<script>
+// 🌟 利率タブの初期設定
+window.onload = function() {
+  if(document.getElementById("tab-rate")) {
+    document.getElementById("tab-rate").innerHTML = `
+      <div class="card">
+        <h3>為替・利率 (本日)</h3>
+        <div class="rate-box" style="display:flex; gap:10px;">
+          <div style="flex:1; background:#f5f5f5; padding:10px; border-radius:8px;">
+            <h4>米ドル</h4>
+            <div>為替：<span id="usdRate">--</span></div>
+            <div>利率：<span id="usdInterest">--</span></div>
+            <div style="margin-top:5px; color:#666; font-size:0.85em;">15日前比<br>為替：<span id="usdRateDiff">--</span> / 利率：<span id="usdInterestDiff">--</span></div>
+          </div>
+          <div style="flex:1; background:#f5f5f5; padding:10px; border-radius:8px;">
+            <h4>豪ドル</h4>
+            <div>為替：<span id="audRate">--</span></div>
+            <div>利率：<span id="audInterest">--</span></div>
+            <div style="margin-top:5px; color:#666; font-size:0.85em;">15日前比<br>為替：<span id="audRateDiff">--</span> / 利率：<span id="audInterestDiff">--</span></div>
+          </div>
+        </div>
+        <h3 style="margin-top:20px;">履歴 (1日・16日)</h3>
+        <div id="rateHistory" style="font-size:0.85em; background:#f9f9f9; padding:10px; border-radius:5px; max-height:200px; overflow-y:auto;">履歴収集中...</div>
+      </div>
+      <div class="card" style="margin-top:10px;">
+        <h3>第一フロンティア生命</h3>
+        <div class="rate-box" style="display:flex; gap:5px; flex-wrap:wrap;">
+          <button onclick="window.open('https://www.d-frontier-life.co.jp/customer/rate/tsumitateriritsu_history.html?param=index_teiki_choice_23&product=&agency=')">レシ</button>
+          <button onclick="window.open('https://www.d-frontier-life.co.jp/customer/rate/hendo_choice_19_05&product=&agency=')">カレ</button>
+          <button onclick="window.open('https://www.d-frontier-life.co.jp/customer/rate/hendo_shushin_choice_20_6&product=&agency=')">プレ</button>
+        </div>
+      </div>`;
+  }
+  render();
+};
+
+let currentYear = new Date().getFullYear().toString();
+let keepIndex = 0; let jobIndex = 0; let currentTotalCat = "職選";
+
+function openHelper() { document.getElementById("helper-overlay").style.display = "flex"; }
+function closeHelper() { document.getElementById("helper-overlay").style.display = "none"; }
+
+function calcHelper() {
+  const era = document.querySelector('input[name="era"]:checked').value;
+  let y = parseInt(document.getElementById("h-year").value);
+  const m = parseInt(document.getElementById("h-month").value);
+  const d = parseInt(document.getElementById("h-day").value);
+  if(!y || !m || !d) return;
+  let adYear = y;
+  if(era === "令和") adYear = y + 2018;
+  if(era === "平成") adYear = y + 1988;
+  if(era === "昭和") adYear = y + 1925;
+  let waYear = "";
+  if(adYear >= 2019) waYear = `令和${adYear - 2018 === 0 ? '元' : adYear - 2018}年`;
+  else if(adYear >= 1989) waYear = `平成${adYear - 1988}年`;
+  else if(adYear >= 1926) waYear = `昭和${adYear - 1925}年`;
+  const today = new Date(2026, 3, 4);
+  let age = 2026 - adYear;
+  if (today.getMonth() + 1 < m || (today.getMonth() + 1 === m && today.getDate() < d)) { age--; }
+  document.getElementById("helper-result").innerHTML = `西暦：${adYear}年 / ${waYear} / 現在${age}才`;
+  showZodiacFortune(m, d);
+}
+
+function showZodiacFortune(m, d) {
+  const zodiacs = [{ name: "山羊座", start: [12, 22], end: [1, 19] },{ name: "水瓶座", start: [1, 20], end: [2, 18] },{ name: "魚座", start: [2, 19], end: [3, 20] },{ name: "牡羊座", start: [3, 21], end: [4, 19] },{ name: "牡牛座", start: [4, 20], end: [5, 20] },{ name: "双子座", start: [5, 21], end: [6, 21] },{ name: "蟹座", start: [6, 22], end: [7, 22] },{ name: "獅子座", start: [7, 23], end: [8, 22] },{ name: "乙女座", start: [8, 23], end: [9, 22] },{ name: "天秤座", start: [9, 23], end: [10, 23] },{ name: "蠍座", start: [10, 24], end: [11, 22] },{ name: "射手座", start: [11, 23], end: [12, 21] }];
+  let myZodiac = zodiacs.find(z => { const s = z.start; const e = z.end; return (m === s[0] && d >= s[1]) || (m === e[0] && d <= e[1]); }) || zodiacs[0];
+  const fortunes = ["笑顔を大切に！","直感が冴える日。","自分を甘やかす時間を。","迷わず一歩踏み出して。","評価される嬉しい日。","対人運がアップ。","仕事を片付けるチャンス！","いつもと違う道を通って。","整理整頓がツキを呼びます。","信頼できる人に相談して。","諦めないで。","自信を持って発言を！"];
+  const foods = ["うどん", "カレー", "パスタ", "お寿司", "焼き肉", "サラダ", "チョコ", "パンケーキ", "おにぎり", "ラーメン"];
+  const seed = m + d + new Date().getDate();
+  document.getElementById("fortune-box").style.display = "block";
+  document.getElementById("zodiac-display").innerText = "あなたは「" + myZodiac.name + "」";
+  document.getElementById("fortune-text").innerText = fortunes[seed % fortunes.length];
+  document.getElementById("lucky-food").innerText = "今日のラッキー食べ物：" + foods[seed % foods.length];
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('[id^="tab-"]').forEach(el => el.style.display = "none");
+  document.getElementById("tab-" + tab).style.display = "block";
+  document.getElementById("year-tab-container").style.display = (tab === "sales") ? "flex" : "none";
+}
+function switchYear(year) { currentYear = year; render(); }
+function openForm(){ document.getElementById("modal").style.display="block"; }
+function closeForm(){ document.getElementById("modal").style.display="none"; }
+function pickDate(){ document.getElementById("date").showPicker(); }
+document.getElementById("date").onchange = () => document.getElementById("dateBtn").innerText = document.getElementById("date").value.slice(5);
+function pickMonth(){ document.getElementById("month").showPicker(); }
+document.getElementById("month").onchange = () => document.getElementById("monthBtn").innerText = document.getElementById("month").value.split("-")[1] + "月";
+function roundCases(c) { return Math.ceil(c * 10) / 10; }
+
+function getProductRates(type, monthStr) {
+  let is2028 = monthStr >= "2028-04"; let is2027 = monthStr >= "2027-04";
+  if (type === "レシーブ") { if (is2028) return { kR: 0.4, jR: 0.4 }; if (is2027) return { kR: 0.4, jR: 0.6 }; return { kR: 0.4, jR: 0.8 }; }
+  if (type === "カレンシー" || type === "プレゼント") { if (is2028) return { kR: 0.5, jR: 0.5 }; if (is2027) return { kR: 0.5, jR: 0.75 }; return { kR: 0.5, jR: 1.0 }; }
+  if (type === "ストーリー") { if (is2028) return { kR: 0.3, jR: 0.3 }; if (is2027) return { kR: 0.3, jR: 0.45 }; return { kR: 0.3, jR: 0.6 }; }
+  return { kR: 1.0, jR: 1.0 };
+}
+
+function getProductCalcData(type, amount, monthStr) {
+  let multiplier = 1.0; let fixedCases = null; 
+  let isDFL = ["レシーブ", "カレンシー", "プレゼント", "ストーリー"].includes(type);
+  if (type === "自動車" || type === "自動車更改") { multiplier = 2.9 / 1000; fixedCases = (type === "自動車") ? 0.5 : 0.2; isDFL = false; }
+  else if (type === "損保その他") { multiplier = 1.4 / 1000; fixedCases = 0.2; isDFL = false; }
+  else if (type === "アフラック") { multiplier = 14.3 / 1000; fixedCases = 0.5; isDFL = false; }
+  let baseAmt = amount * multiplier; 
+  let rates = isDFL ? getProductRates(type, monthStr) : { kR: 1.0, jR: 1.0 };
+  let finalCases = fixedCases;
+  if (finalCases === null) { 
+    let dlForJudge = baseAmt * rates.kR; 
+    if (dlForJudge >= 500) finalCases = 1.5; else if (dlForJudge >= 300) finalCases = 1.0; else finalCases = 0.5; 
+  }
+  return { baseAmt, rates, finalCases, isDFL };
+}
+
+function saveSales(){
+  let mVal = document.getElementById("month").value; if(!mVal) { alert("月分を選択してください"); return; }
+  let data = { id: Date.now(), cases: parseFloat(document.getElementById("cases").value), amount: parseFloat(document.getElementById("amount").value) || 0, date: document.getElementById("date").value, month: mVal, shared: document.getElementById("chk_shared").checked, receive: document.getElementById("chk_receive").checked, currency: document.getElementById("chk_currency").checked, present: document.getElementById("chk_present").checked, story: document.getElementById("chk_story").checked, auto: document.getElementById("chk_auto").checked, other: document.getElementById("chk_other").checked, aflac: document.getElementById("chk_aflac").checked, auto_rev: document.getElementById("chk_auto_rev").checked };
+  let list = JSON.parse(localStorage.getItem("sales") || "[]"); list.push(data); localStorage.setItem("sales", JSON.stringify(list)); closeForm(); resetSalesForm(); render();
+}
+function resetSalesForm() { document.getElementById("amount").value = ""; document.querySelectorAll('#modal input[type="checkbox"]').forEach(c => c.checked = false); document.getElementById("dateBtn").innerText = "日付"; document.getElementById("monthBtn").innerText = "月分"; }
+function deleteSales(id){ let list = JSON.parse(localStorage.getItem("sales") || "[]").filter(i => i.id !== id); localStorage.setItem("sales", JSON.stringify(list)); render(); }
+function editSales(id){
+  let list = JSON.parse(localStorage.getItem("sales") || "[]"); let i = list.find(item => item.id === id); if(!i) return;
+  document.getElementById("cases").value = i.cases; document.getElementById("amount").value = i.amount; document.getElementById("date").value = i.date; document.getElementById("month").value = i.month; document.getElementById("chk_shared").checked = i.shared; document.getElementById("chk_receive").checked = i.receive; document.getElementById("chk_currency").checked = i.currency; document.getElementById("chk_present").checked = i.present; document.getElementById("chk_story").checked = i.story; document.getElementById("chk_auto").checked = i.auto; document.getElementById("chk_other").checked = i.other; document.getElementById("chk_aflac").checked = i.aflac; document.getElementById("chk_auto_rev").checked = i.auto_rev; deleteSales(id); openForm();
+}
+function previewPartner() {
+  let type = document.getElementById("partnerType").value; let val = parseFloat(document.getElementById("partnerAmount").value); let isShared = document.getElementById("chk_partner_shared").checked; let preview = document.getElementById("partnerPreview"); if (!val) { preview.innerHTML = ""; return; }
+  let nowMonth = new Date().toISOString().slice(0,7); let calc = getProductCalcData(type, val, nowMonth); let finalAmt = isShared ? calc.baseAmt / 2 : calc.baseAmt; let finalCas = isShared ? roundCases(calc.finalCases / 2) : calc.finalCases; preview.innerHTML = `${finalCas}件 → DL:${Math.floor(finalAmt * calc.rates.kR)} / 職選:${Math.floor(finalAmt * calc.rates.jR)}`;
+}
+function savePartner() {
+  let type = document.getElementById("partnerType").value; let amount = parseFloat(document.getElementById("partnerAmount").value); let shared = document.getElementById("chk_partner_shared").checked; if (!amount) return;
+  let list = JSON.parse(localStorage.getItem("partner") || "[]"); list.push({ id: Date.now(), type, amount, shared }); localStorage.setItem("partner", JSON.stringify(list)); document.getElementById("partnerAmount").value = ""; document.getElementById("chk_partner_shared").checked = false; previewPartner(); render();
+}
+function deletePartner(id) { let list = JSON.parse(localStorage.getItem("partner") || "[]").filter(i => i.id !== id); localStorage.setItem("partner", JSON.stringify(list)); render(); }
+function saveProspect(){
+  let name = document.getElementById("p-name").value; let cases = parseFloat(document.getElementById("p-cases").value); let amount = parseFloat(document.getElementById("p-amount").value); if(!name || isNaN(amount)) return;
+  let list = JSON.parse(localStorage.getItem("prospect") || "[]"); list.push({ id: Date.now(), name, cases, amount }); localStorage.setItem("prospect", JSON.stringify(list)); document.getElementById("p-name").value = ""; document.getElementById("p-amount").value = ""; render();
+}
+function deleteProspect(id){ let list = JSON.parse(localStorage.getItem("prospect") || "[]").filter(i => i.id !== id); localStorage.setItem("prospect", JSON.stringify(list)); render(); }
+
+function render(){
+  const allSalesList = JSON.parse(localStorage.getItem("sales") || "[]"); 
+  const partnerList = JSON.parse(localStorage.getItem("partner") || "[]"); 
+  const prospectList = JSON.parse(localStorage.getItem("prospect") || "[]");
+
+  let years = new Set(); 
+  years.add(new Date().getFullYear().toString()); 
+  allSalesList.forEach(item => { if(item.month) years.add(item.month.split("-")[0]); });
+  let sortedYears = Array.from(years).sort((a,b)=>b-a); 
+  let yearTabHtml = ""; 
+  sortedYears.forEach(y => { yearTabHtml += `<div class="year-tab ${y === currentYear ? 'active' : ''}" onclick="switchYear('${y}')">${y}年</div>`; }); 
+  document.getElementById("year-tab-container").innerHTML = yearTabHtml;
+
+  const list = allSalesList.filter(item => item.month && item.month.startsWith(currentYear)); 
+  list.sort((a,b)=>(a.date||"").localeCompare(b.date||""));
+
+  let monthly = {}; 
+  let keepPeriods = [[4,5,6],[7,8,9],[10,11,12],[1,2,3]]; 
+  let jobPeriods = [[3,4,5,6,7,8],[9,10,11,12,1,2]]; 
+  let keepTotal = {cases:0, amount:0}; 
+  let jobTotal = {cases:0, amount:0};
+
+  list.forEach(item => {
+    let m = parseInt(item.month.split("-")[1]); 
+    let type = "通常"; 
+    if(item.receive) type = "レシーブ"; 
+    else if(item.currency) type = "カレンシー"; 
+    else if(item.present) type = "プレゼント"; 
+    else if(item.story) type = "ストーリー"; 
+    else if(item.auto) type = "自動車"; 
+    else if(item.other) type = "損保その他"; 
+    else if(item.aflac) type = "アフラック"; 
+    else if(item.auto_rev) type = "自動車更改";
+
+    let calc = getProductCalcData(type, item.amount, item.month); 
+    let targetCas = (calc.isDFL || type === "通常") ? item.cases : calc.finalCases;
+    let finalAmt = item.shared ? calc.baseAmt / 2 : calc.baseAmt; 
+    let finalCas = item.shared ? roundCases(targetCas / 2) : targetCas;
+
+    if(!monthly[m]) monthly[m] = { items: [] }; 
+    monthly[m].items.push({...item, d_cas: finalCas, d_amt: finalAmt, isDFL: calc.isDFL, kR: calc.rates.kR, jR: calc.rates.jR});
+
+    if(keepPeriods[keepIndex].includes(m)){ keepTotal.cases += finalCas; keepTotal.amount += finalAmt * calc.rates.kR; } 
+    if(jobPeriods[jobIndex].includes(m)){ jobTotal.cases += finalCas; jobTotal.amount += finalAmt * calc.rates.jR; }
+  });
+
+  let breakdown = keepPeriods[keepIndex].map(m => { 
+    let mC = 0, mA = 0; 
+    if(monthly[m]) { monthly[m].items.forEach(i => { mC += i.d_cas; mA += i.d_amt * i.kR; }); } 
+    return `${m}月：${mC.toFixed(1)}件${Math.floor(mA)}万`; 
+  }).join(" / ");
+
+  let sHtml = `<div class="card header"><button onclick="changeKeep(-1)">◀</button> 四半期合計 ${currentYear}年 ${keepIndex+1}期 <button onclick="changeKeep(1)">▶</button><br>現在：${keepTotal.cases.toFixed(1)}件 ${Math.floor(keepTotal.amount)}万<br><span style="font-size:12px; font-weight:normal;">キープ残：${(2-keepTotal.cases).toFixed(1)}件 ${3000-Math.floor(keepTotal.amount)}万 / アップ残：${(4-keepTotal.cases).toFixed(1)}件 ${6000-Math.floor(keepTotal.amount)}万<br>(${breakdown})</span></div><div class="card header"><button onclick="changeJob(-1)">◀</button> 職選合計 ${jobIndex===0?"前半":"後半"} <button onclick="changeJob(1)">▶</button><br>現在：${jobTotal.cases.toFixed(1)}件 ${Math.floor(jobTotal.amount)}万<br><span style="font-size:12px; font-weight:normal;">デザイナー残：${(9-jobTotal.cases).toFixed(1)}件 ${1800-Math.floor(jobTotal.amount)}万 / チーフ残：${(12-jobTotal.cases).toFixed(1)}件 ${6000-Math.floor(jobTotal.amount)}万</span></div>`;
+
+  Object.keys(monthly).sort((a,b)=>b-a).forEach(m => {
+    let items = monthly[m].items; 
+    let mC_DL=0, mC_DFL=0, mK_DL=0, mK_DFL=0, mJ_DL=0, mJ_DFL=0; 
+    sHtml += `<div class="card"><b>${m}月分</b><br>`;
+    items.forEach(i => { 
+      if(i.isDFL) { mC_DFL += i.d_cas; mK_DFL += i.d_amt * i.kR; mJ_DFL += i.d_amt * i.jR; } 
+      else { mC_DL += i.d_cas; mK_DL += i.d_amt; mJ_DL += i.d_amt; }
+      let names = []; if(i.shared)names.push("共"); if(i.receive)names.push("レシ"); if(i.currency)names.push("カレ"); if(i.present)names.push("プレ"); if(i.story)names.push("スト"); if(i.auto)names.push("車"); if(i.other)names.push("損"); if(i.aflac)names.push("ア"); if(i.auto_rev)names.push("更");
+      sHtml += `<div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; font-size:12px; border-bottom:1px dotted #ccc;"><div>${(i.date||"").slice(8)}日 ${i.d_cas}件 ${Math.floor(i.d_amt)}万 <span style="color:#007aff;">${names.join("")}</span></div><div><button onclick="editSales(${i.id})" style="margin-right:4px;">編集</button><button onclick="deleteSales(${i.id})">削除</button></div></div>`;
+    });
+    sHtml += `<div style="margin-top:8px; font-size:11px; line-height:1.5;"><b>合計：</b>DL ${mC_DL.toFixed(1)} + DFL ${mC_DFL.toFixed(1)} = ${(mC_DL + mC_DFL).toFixed(1)}件<br><b>DL：</b>DL ${Math.floor(mK_DL)} + DFL ${Math.floor(mK_DFL)} = ${Math.floor(mK_DL + mK_DFL)}万<br><b>職選：</b>DL ${Math.floor(mJ_DL)} + DFL ${Math.floor(mJ_DFL)} = ${Math.floor(mJ_DL + mJ_DFL)}万</div></div>`;
+  });
+  document.getElementById("tab-sales").innerHTML = sHtml;
+
+  // 🌟 ここから下が修正箇所：提携と見込みの描画を render 関数の中に入れました
+  let pTabHtml = `<div class="card"><div style="display:flex; justify-content:space-between;"><b>提携入力</b><button onclick="openHelper()" style="font-size:10px; padding:2px 5px; background:#e3f0ff;">🎂 年齢・占い</button></div><br><div class="input-row"><select id="partnerType" onchange="previewPartner()" style="flex:1.2;"><option value="レシーブ">レシーブ</option><option value="カレンシー">カレンシー</option><option value="プレゼント">プレゼント</option><option value="ストーリー">ストーリー</option><option value="自動車">自動車</option><option value="損保その他">損保その他</option><option value="アフラック">アフラック</option><option value="自動車更改">自動車更改</option></select><input id="partnerAmount" type="number" placeholder="万" oninput="previewPartner()" style="flex:0.8;"><label class="check-item" style="background:#eee; padding:8px; border-radius:10px;"><input type="checkbox" id="chk_partner_shared" onchange="previewPartner()"> 共</label><button class="primary" onclick="savePartner()">追加</button></div><div id="partnerPreview" style="font-size:12px; color:#007aff; font-weight:bold; height:15px; margin-top:5px;"></div></div>`;
+  let groupedPartner = {}; partnerList.forEach(i => { if(!groupedPartner[i.type]) groupedPartner[i.type] = []; groupedPartner[i.type].push(i); });
+  for(let type in groupedPartner){ pTabHtml += `<div class="card"><b>${type}</b>`; groupedPartner[type].forEach(i => { let nowM = new Date().toISOString().slice(0,7); let calc = getProductCalcData(type, i.amount, nowM); let displayAmt = i.shared ? calc.baseAmt / 2 : calc.baseAmt; let displayCas = i.shared ? roundCases(calc.finalCases / 2) : calc.finalCases; pTabHtml += `<div style="display:flex; justify-content:space-between; margin-top:8px; font-size:13px;"><div>${displayCas}件 ${Math.floor(displayAmt)}万${i.shared?'(共)':''} → DL:${Math.floor(displayAmt*calc.rates.kR)}/職選:${Math.floor(displayAmt*calc.rates.jR)}</div><button onclick="deletePartner(${i.id})">削除</button></div>`; }); pTabHtml += `</div>`; }
+  document.getElementById("tab-partner").innerHTML = pTabHtml;
+
+  let pTC=0; let pTA=0; let pLHtml=""; prospectList.forEach(i => { pTC+=i.cases; pTA+=i.amount; pLHtml+=`<div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #eee; font-size:13px;"><div>${i.name}：${i.cases}件 ${i.amount}万</div><button onclick="deleteProspect(${i.id})">削除</button></div>`; });
+  let bC = 0, bA = 0; if(currentTotalCat === "職選") { bC = jobTotal.cases; bA = jobTotal.amount; } else if(currentTotalCat === "キープアップ") { bC = keepTotal.cases; bA = keepTotal.amount; } else if(currentTotalCat === "月") { let nowM = new Date().getMonth() + 1; if(monthly[nowM]){ monthly[nowM].items.forEach(i => { bC += i.d_cas; bA += i.d_amt * i.jR; }); } }
+  document.getElementById("tab-prospect").innerHTML = `<div class="card" style="margin-bottom:0; border-radius:14px 14px 0 0;"><div style="display:flex; justify-content:space-between; margin-bottom:10px;"><h3>見込み入力</h3><button class="primary" onclick="saveProspect()" style="padding:8px 20px;">保存</button></div><div class="input-row"><input type="text" id="p-name" placeholder="名前" style="flex:2;"><select id="p-cases" style="flex:1.2;"><option value="0.5">0.5件</option><option value="1" selected>1件</option><option value="1.5">1.5件</option></select><input type="number" id="p-amount" placeholder="万" style="flex:1;"></div></div><div class="card" style="margin-top:0; border-radius:0 0 14px 14px; border-top:1px dashed #ccc;"><div style="background:#f9f9f9; padding:8px; border-radius:8px; margin-bottom:10px;">${pLHtml || 'なし'}</div><div>見込：${pTC.toFixed(1)}件 / ${Math.floor(pTA)}万</div><div style="padding-top:10px; border-top:2px solid #333; font-weight:bold;">合計 <select onchange="currentTotalCat=this.value; render();"><option value="職選" ${currentTotalCat==="職選"?"selected":""}>職選</option><option value="キープアップ" ${currentTotalCat==="キープアップ"?"selected":""}>キープアップ</option><option value="月" ${currentTotalCat==="月"?"selected":""}>月</option></select> ：${(bC + pTC).toFixed(1)}件 / ${Math.floor(bA + pTA)}万</div></div>`;
+}
+
+function changeKeep(n){ keepIndex=(keepIndex+n+4)%4; render(); }
+function changeJob(n){ jobIndex=(jobIndex+n+2)%2; render(); }
+</script>
+
+<script src="rate.js?v=20260405"></script>
+</body>
+</html>
+ies_id=${seriesId}&api_key=${FRED_API_KEY}&file_type=json&sort_order=desc&limit=20`;
   const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(targetUrl);
   const response = await fetch(proxyUrl);
   const data = await response.json();
