@@ -108,10 +108,8 @@ function saveAndSyncHistory(uR, aR, uList, aList) {
   
 
   history.sort((a, b) => new Date(a.date) - new Date(b.date));
-  const todayData = history.find(item => item.date === todayStr);
-  const fifteenDaysAgo = new Date();
-  fifteenDaysAgo.setDate(fifteenDaysAgo.getDate() - 15);
-  const pastData = history[history.length - 15];
+  const todayData = history[history.length - 1];
+const pastData = history[history.length - 15];
   
 if (todayData && pastData) {
   if (pastData.usdR !== null) {
