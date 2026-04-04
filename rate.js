@@ -92,7 +92,6 @@ function saveAndSyncHistory(uR, aR, uList, aList) {
     if (!history.find(item => item.date === date)) {
       history.push({
         date: date,
-        usdR: (date === todayStr) ? uR : null,
         audR: (date === todayStr) ? aR : null,
         usdI: parseFloat(parseFloat(obs.value).toFixed(2)),
         audI: parseFloat(parseFloat(aList[index].value).toFixed(2))
@@ -142,3 +141,11 @@ function displayDiff(id, diff, unit) {
   el.textContent = `${sign}${diff.toFixed(2)}${unit}`;
   el.style.color = diff > 0 ? "red" : (diff < 0 ? "blue" : "black");
 }
+
+history.push({
+  date: date,
+  usdR: uR,
+  audR: aR,
+  usdI: parseFloat(parseFloat(obs.value).toFixed(2)),
+  audI: parseFloat(parseFloat(aList[index].value).toFixed(2))
+});
