@@ -214,7 +214,7 @@ function render(){
   const kP = [[4,5,6],[7,8,9],[10,11,12],[1,2,3]], jP = [[3,4,5,6,7,8],[9,10,11,12,1,2]];
 
   list.forEach(s => {
-    let typeNm = s.receive?"レシ":s.currency?"カレ":s.present?"プレ":s.story?"スト":s.auto?"車":s.other?"損":s.aflac?"ア":s.auto_rev?"更":"通";
+    let typeNm = s.receive?"レシ":s.currency?"カレ":s.present?"プレ":s.story?"スト":s.auto?"車":s.other?"損":s.aflac?"ア":s.auto_rev?"更":"";
     let calc = getProductCalcData(s.receive?"レシーブ":s.currency?"カレンシー":s.present?"プレゼント":s.story?"ストーリー":s.auto?"自動車":s.other?"損保その他":s.aflac?"アフラック":s.auto_rev?"自動車更改":"通常", s.amount, s.month);
     let targetCas = (calc.isDFL || !s.auto && !s.other && !s.aflac && !s.auto_rev) ? s.cases : calc.finalC;
     let fA = s.shared ? calc.baseAmt/2 : calc.baseAmt, fC = s.shared ? Math.ceil((targetCas/2)*10)/10 : targetCas;
@@ -304,4 +304,3 @@ function showFortune(m,d) {
 </script>
 </body>
 </html>
-
