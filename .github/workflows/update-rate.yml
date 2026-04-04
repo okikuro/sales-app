@@ -1,4 +1,3 @@
-
 name: Update Rate
 
 on:
@@ -11,32 +10,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Fetch US 10Y
-      run: |
-        curl "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DGS10" -o us.csv
-        tail -n 1 us.csv > latest_us.txt
-        echo "US=$(cut -d',' -f2 latest_us.txt)" >> $GITHUB_ENV
+      - name: Fetch US 10Y
+        run: |
+          curl "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DGS10" -o us.csv
+          tail -n 1 us.csv > latest_us.txt
+          echo "US=$(cut -d',' -f2 latest_us.txt)" >> $GITHUB_ENV
 
-    - name: Fetch AU 10Y
-      run: |
-        curl "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IRLTLT01AUM156N" -o au.csv
-        tail -n 1 au.csv > latest_au.txt
-        echo "AU=$(cut -d',' -f2 latest_au.txt)" >> $GITHUB_ENV
+      - name: Fetch AU 10Y
+        run: |
+          curl "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IRLTLT01AUM156N" -o au.csv
+          tail -n 1 au.csv > latest_au.txt
+          echo "AU=$(cut -d',' -f2 latest_au.txt)" >> $GITHUB_ENV
 
-    - name: Update JSON
-      run: |
-        echo "{
-          \"usd10y\": $US,
-          \"aud10y\": $AU,
-          \"date\": \"$(date +%Y-%m-%d)\"
-        }" > rate.json
+      - name: Update JSON
+        run: |
+          echo "{
+            \"usd10y\": $US,
+            \"aud10y\": $AU,
+            \"date\": \"$(date +%Y-%m-%d)\"
+          }" > rate.json
 
-    - name: Commit
-      run: |
-        git config user.name "github-actions"
-        git config user.email "actions@github.com"
-        git add rate.json
-        git commit -m "auto update rate" || echo "no changes"
-        git push
+      - name: Commit
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add rate.json
+          git commit -m "auto update rate" || echo "no changes"
+          git push
